@@ -1,45 +1,95 @@
-# Rust Chart Generator
+# Chart_Generator 📊
+by [Your Name] <br>
+[Your Institution/Organization Name]
 
-This program is a command-line based utility for generating different types of charts from CSV data using Rust.
+
+## Description
+Chart_Generator is an interactive command-line tool designed in Rust, enabling users to visualize their data seamlessly. Users can import CSV datasets and generate various types of charts, all displayed in an intuitive manner. Additionally, it offers an option to export these visualizations as PNG images for better accessibility and sharing.
 
 ## Features
-- Generate 5 types of charts:
-  - Bar Chart
-  - Scatter Plot
-  - Pie Chart
-  - Line and Area Chart
-  - Radar Chart
+Here's a quick glance at the Chart_Generator:
 
-## How to use
+![Chart Generator Main Menu](screenshots/main_menu.png)
 
-1. Launch the program.
-2. You will be presented with a menu to choose the type of chart you want to generate.
-3. Follow the prompts to provide necessary inputs such as CSV filenames and output file names.
-4. The program will generate the chart and save it as a PNG or SVG file.
+___
 
-### Supported CSV Formats for Each Chart:
+#### 1. Bar Chart
+![Bar Chart](screenshots/bar_chart.png)
 
-- **Bar Chart**: Expected Columns: 'Category', 'Value'
-- **Scatter Plot**: Expected Columns for two CSVs: 'X1', 'Y1' and 'X2', 'Y2'
-- **Pie Chart**: Expected Columns: 'Category', 'Percentage'
-- **Line and Area Chart**: Expected Columns: 'Date', 'Value'
-- **Radar Chart**: Expected Columns: 'Label', 'Value'
+This feature allows users to:
+ * Visualize categorical data with rectangular bars
+ * Compare different categories based on their values
 
-## Prerequisites
+Input Expected: CSV with columns 'Category' and 'Value'.
+___
 
-Ensure you have the necessary Rust libraries and dependencies installed.
+#### 2. Scatter Plot
+![Scatter Plot](screenshots/scatter_plot.png)
 
-## Installation
+This feature displays:
+ * Data points on a two-dimensional axis
+ * Relationships between two variables from two separate CSVs
 
-1. Clone the repository.
-2. Navigate to the project directory and run `cargo build --release`.
-3. Use the generated executable in the `target/release` directory.
+Input Expected: Two CSVs with columns 'X1', 'Y1' and 'X2', 'Y2' respectively.
+___
 
-## Feedback & Contribution
+#### 3. Pie Chart
+![Pie Chart](screenshots/pie_chart.png)
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+This visualization showcases:
+ * Proportional representation of categories
+ * Circular statistical graphic split into slices
 
-Please make sure to update tests as appropriate.
+Input Expected: CSV with columns 'Category' and 'Percentage'.
+___
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+#### 4. Line and Area Chart
+![Line and Area Chart](screenshots/line_area_chart.png)
+
+This chart is optimal for:
+  * Displaying information as a series of data points
+  * Understanding trends over intervals or time
+
+Input Expected: CSV with columns 'Date' and 'Value'.
+___
+
+#### 5. Radar Chart
+![Radar Chart](screenshots/radar_chart.png)
+
+This feature displays:
+ * A multi-variable data set on a two-dimensional plane
+ * Comparative analysis across different categories
+
+Input Expected: CSV with columns 'Label' and 'Value'.
+___
+
+#### 6. Interactive User Interface
+| ![Initial Prompt](screenshots/initial_prompt.png) | ![File Input Prompt](screenshots/file_input.png) |
+| -------- | -------- |
+| Initial Chart Selection Menu | User Prompt for File Name |
+
+This interface is designed to be user-friendly, guiding users through the entire process of chart generation. From selecting the chart type to entering the desired output filename, every step is made simple.
+___
+
+#### 7. Output Previews
+![Output Preview](screenshots/output_preview.png)
+
+Upon successful generation:
+ * Preview the chart output
+ * Save it locally in PNG format
+
+___
+
+#### 8. Error Handling
+![Error Handling](screenshots/error_handling.png)
+
+The application is built to handle:
+ * Incorrect file names or paths
+ * Unsupported data format in CSVs
+ * Any other potential errors during the visualization process
+
+Ensuring a smooth user experience throughout.
+
+___
+
+For those looking to bring their data to life, Chart_Generator is the perfect tool, bridging the gap between raw data and insightful visualizations.
