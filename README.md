@@ -217,6 +217,3 @@ The application is built to handle:
 
 Ensuring a smooth user experience throughout.
 
-___
-
-For those looking to bring their data to life, Chart_Generator is the perfect tool, bridging the gap between raw data and insightful visualizations.
