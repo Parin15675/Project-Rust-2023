@@ -51,7 +51,7 @@ Enter the title for the chart:
 Age
 ```
 
-![Bar Chart](screenshots/bar_chart.png)
+![Bar Chart](./Bar_chart.png)
 
 This feature allows users to:
  * Visualize categorical data with rectangular bars
@@ -84,7 +84,7 @@ Scatter x,y
 ```
 
 
-![Scatter Plot](screenshots/scatter_plot.png)
+![Scatter Plot](./Scatter.png)
 
 This feature displays:
  * Data points on a two-dimensional axis
@@ -112,7 +112,7 @@ Enter the title for the chart:
 Regions Sales Percentage
 ```
 
-![Pie Chart](screenshots/pie_chart.png)
+![Pie Chart](./pie_chart.png)
 
 This visualization showcases:
  * Proportional representation of categories
@@ -139,7 +139,7 @@ Line_area.png
 Enter the title for the chart:
 Monthly Sales
 ```
-![Line and Area Chart](screenshots/line_area_chart.png)
+![Line and Area Chart](./line_area_chart.png)
 
 This chart is optimal for:
   * Displaying information as a series of data points
@@ -163,7 +163,7 @@ Enter the desired name for the SVG output file (e.g., 'radar_chart.png'):
 Radar.png 
 ```
 
-![Radar Chart](screenshots/radar_chart.png)
+![Radar Chart](./radar_chart.png)
 
 This feature displays:
  * A multi-variable data set on a two-dimensional plane
@@ -178,7 +178,6 @@ This interface is designed to be user-friendly, guiding users through the entire
 ___
 
 Output Previews
-![Output Preview](screenshots/output_preview.png)
 
 Upon successful generation:
  * Preview the chart output
