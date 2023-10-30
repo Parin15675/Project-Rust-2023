@@ -5,6 +5,8 @@ use plotters::prelude::*;
 use rand::Rng;
 use csv::Reader;
 
+use plotters::prelude::*;
+
 fn plot_bar_chart(
     data: &[data_loading::DataRow],
     output_file: &str,
@@ -12,7 +14,13 @@ fn plot_bar_chart(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(output_file, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
-    let colors = [RED, GREEN, BLUE, YELLOW, MAGENTA, CYAN, BLACK];
+
+    let colors = [
+        RGBColor(200, 200, 200),  // Light Gray
+        RGBColor(150, 150, 150),  // Mid Gray
+        RGBColor(100, 100, 100),  // Dark Gray
+        RGBColor(50, 50, 50),     // Very Dark Gray
+    ];
 
     let max_age = data
         .iter()
@@ -52,6 +60,8 @@ fn plot_bar_chart(
 
     Ok(())
 }
+
+
 
 fn get_user_input(prompt: &str) -> String {
     println!("{}", prompt);
@@ -166,10 +176,10 @@ fn main() {
                     eprintln!("Error drawing the line and area chart: {}", err);
                 }
             }
-            "5" => { 
+            "5" => { // New case for Radar Chart
                 let csv_file_name = get_valid_filename("Enter the name of the CSV file for radar chart (e.g., 'radar_data.csv'):", ".csv");
-                let output_file_name = get_valid_output_filename("Enter the desired name for the SVG output file (e.g., 'radar_chart.png):", ".png");
-                let chart_title = get_user_input("Enter the title for the chart:");
+                let output_file_name = get_valid_output_filename("Enter the desired name for the SVG output file (e.g., 'radar_chart.png'):", ".png");
+
 
                 match read_from_csv_radar(&csv_file_name) {
                     Ok(data) => {
@@ -476,17 +486,109 @@ fn draw_pie_chart_to_png(input_file: &str, output_file: &str, chart_title: &str)
         // Draw the label
         let label_style = TextStyle::from(("sans-serif", 15).into_font()).color(&BLACK);
         root.draw_text(&pie_data.label, &label_style, (label_x, label_y))?;
+        root.draw_text(&pie_data.value.to_string(), &label_style, (label_x, label_y+15))?;
 
         start_angle = end_angle;
     }
 
     // Draw the title
     let title_style = TextStyle::from(("sans-serif", 24).into_font()).color(&BLACK);
-    root.draw_text(chart_title, &title_style, (175, 25))?;  // Adjust position as needed
+    root.draw_text(chart_title, &title_style, (90, 25))?;  // Adjust position as needed
 
     Ok(())
 }
 
+
+
+
+
+
+
+fn read_from_csv_radar(file_path: &str) -> Result<Vec<(String, f32)>, Box<dyn Error>> {
+    let mut rdr = ReaderBuilder::new().from_path(file_path)?;
+    let mut data = Vec::new();
+
+    for result in rdr.records() {
+        let record = result?;
+        let label = record[0].to_string();
+        let value: f32 = record[1].parse()?;
+        data.push((label, value));
+    }
+
+    Ok(data)
+}
+
+
+use plotters::style::IntoFont;
+use plotters::element::Circle;
+
+
+
+fn draw_radar_chart(data: &[(String, f32)], output_file: &str) -> Result<(), Box<dyn Error>> {
+    // Prepare drawing area
+    let root = BitMapBackend::new(output_file, (800, 800)).into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let max_val = data.iter().map(|(_, v)| *v).fold(0.0, f32::max);
+
+    // Create chart
+    let mut chart = ChartBuilder::on(&root)
+        .x_label_area_size(40)
+        .y_label_area_size(40)
+        .build_cartesian_2d(-350..350, -350..350)?;
+
+
+
+
+
+    let center = (400.0, 400.0);  // Center coordinates
+    let max_radius = 350.0;      // Maximum radius value
+
+    for i in 0..5 {
+        let radius_percentages = [0.0, 0.25, 0.5, 0.75, 1.0];
+        let label_values = [0, 25, 50, 75, 100];
+
+        let radius_percentage = radius_percentages[i];
+        let label_value = label_values[i];
+        
+        let radius = max_radius * radius_percentage;
+
+        // Drawing the circle
+        root.draw(&Circle::new((center.0 as i32, center.1 as i32), radius as i32,  &BLACK.mix(1.0)))?;
+
+        // Calculate label position
+        let label_x = center.0 + radius;  // Positioned to the right of the circle
+        let label_y = center.1;
+
+        // Drawing the label
+        root.draw(&Text::new(
+            label_value.to_string(),
+            (label_x as i32, label_y as i32), // Convert to integers for drawing
+            ("Arial", 15).into_font()
+        ))?;
+    }
+
+    let step_angle = 2.0 * std::f32::consts::PI / data.len() as f32;
+    let mut radar_points = Vec::new();
+
+    for (index, (label, value)) in data.iter().enumerate() {
+        let scaled_value = (*value / max_val) * 350.0;
+        let x = center.0 as f32 + scaled_value * (step_angle * index as f32).cos();
+        let y = center.1 as f32 - scaled_value * (step_angle * index as f32).sin();
+
+        let x_label = center.0 as f32 + 375.0 * (step_angle * index as f32).cos();
+        let y_label = center.1 as f32 - 375.0 * (step_angle * index as f32).sin();
+        
+        root.draw(&Text::new(label.to_string(), (x_label as i32, y_label as i32), ("Arial", 15)))?;
+
+        radar_points.push((x as i32, y as i32));
+    }
+    radar_points.push(radar_points[0]);
+
+    root.draw(&Polygon::new(radar_points.clone(), RED.mix(0.5).filled()))?;
+
+    Ok(())
+}
 
 use csv;
 use plotters::backend::BitMapBackend;
@@ -578,99 +680,3 @@ fn draw_line_and_area(
 
     Ok(())
 }
-
-
-
-
-fn read_from_csv_radar(file_path: &str) -> Result<Vec<(String, f32)>, Box<dyn Error>> {
-    let mut rdr = ReaderBuilder::new().from_path(file_path)?;
-    let mut data = Vec::new();
-
-    for result in rdr.records() {
-        let record = result?;
-        let label = record[0].to_string();
-        let value: f32 = record[1].parse()?;
-        data.push((label, value));
-    }
-
-    Ok(data)
-}
-
-
-use plotters::style::IntoFont;
-use plotters::element::Circle;
-use plotters::prelude::*;
-
-
-
-
-fn draw_radar_chart(data: &[(String, f32)], output_file: &str) -> Result<(), Box<dyn Error>> {
-    // Prepare drawing area
-    let root = BitMapBackend::new(output_file, (800, 800)).into_drawing_area();
-    root.fill(&WHITE)?;
-
-    let max_val = data.iter().map(|(_, v)| *v).fold(0.0, f32::max);
-
-    // Create chart
-    let mut chart = ChartBuilder::on(&root)
-        .x_label_area_size(40)
-        .y_label_area_size(40)
-        .build_cartesian_2d(-350..350, -350..350)?;
-
-// Assuming you've already set up your drawing area, backend, etc.
-
-
-
-    let center = (400.0, 400.0);  // Center coordinates
-    let max_radius = 350.0;      // Maximum radius value
-
-    // Ensure the backend and drawing root is set up before this
-    // For example: 
-    // let root = drawing_backend.into_drawing_area();
-
-    for i in 0..5 {
-        let radius_percentages = [0.0, 0.25, 0.5, 0.75, 1.0];
-        let label_values = [0, 25, 50, 75, 100];
-
-        let radius_percentage = radius_percentages[i];
-        let label_value = label_values[i];
-        
-        let radius = max_radius * radius_percentage;
-
-        // Drawing the circle
-        root.draw(&Circle::new((center.0 as i32, center.1 as i32), radius as i32,  &BLACK.mix(0.1)))?;
-
-        // Calculate label position
-        let label_x = center.0 + radius;  // Positioned to the right of the circle
-        let label_y = center.1;
-
-        // Drawing the label
-        root.draw(&Text::new(
-            label_value.to_string(),
-            (label_x as i32, label_y as i32), // Convert to integers for drawing
-            ("Arial", 15).into_font()
-        ))?;
-    }
-
-    let step_angle = 2.0 * std::f32::consts::PI / data.len() as f32;
-    let mut radar_points = Vec::new();
-
-    for (index, (label, value)) in data.iter().enumerate() {
-        let scaled_value = (*value / max_val) * 350.0;
-        let x = center.0 as f32 + scaled_value * (step_angle * index as f32).cos();
-        let y = center.1 as f32 - scaled_value * (step_angle * index as f32).sin();
-
-        let x_label = center.0 as f32 + 375.0 * (step_angle * index as f32).cos();
-        let y_label = center.1 as f32 - 375.0 * (step_angle * index as f32).sin();
-        
-        root.draw(&Text::new(label.to_string(), (x_label as i32, y_label as i32), ("Arial", 15)))?;
-
-        radar_points.push((x as i32, y as i32));
-    }
-    radar_points.push(radar_points[0]);
-
-    root.draw(&Polygon::new(radar_points.clone(), RED.mix(0.5).filled()))?;
-
-    Ok(())
-}
-
