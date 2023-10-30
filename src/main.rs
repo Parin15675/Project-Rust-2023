@@ -537,10 +537,6 @@ fn draw_radar_chart(data: &[(String, f32)], output_file: &str) -> Result<(), Box
         .y_label_area_size(40)
         .build_cartesian_2d(-350..350, -350..350)?;
 
-
-
-
-
     let center = (400.0, 400.0);  // Center coordinates
     let max_radius = 350.0;      // Maximum radius value
 
@@ -563,7 +559,7 @@ fn draw_radar_chart(data: &[(String, f32)], output_file: &str) -> Result<(), Box
         // Drawing the label
         root.draw(&Text::new(
             label_value.to_string(),
-            (label_x as i32, label_y as i32), // Convert to integers for drawing
+            (label_x as i32, label_y as i32),
             ("Arial", 15).into_font()
         ))?;
     }
@@ -579,60 +575,25 @@ fn draw_radar_chart(data: &[(String, f32)], output_file: &str) -> Result<(), Box
         let x_label = center.0 as f32 + 375.0 * (step_angle * index as f32).cos();
         let y_label = center.1 as f32 - 375.0 * (step_angle * index as f32).sin();
         
-        root.draw(&Text::new(label.to_string(), (x_label as i32, y_label as i32), ("Arial", 15)))?;
+        root.draw(&Text::new(label.to_string(), (x_label as i32, y_label as i32), ("Arial", 25)))?;
+
+        // Draw a line from center to the outermost circle in the direction of the data point
+        let x_edge = center.0 as f32 + max_radius * (step_angle * index as f32).cos();
+        let y_edge = center.1 as f32 - max_radius * (step_angle * index as f32).sin();
+        root.draw(&PathElement::new(
+            vec![(center.0 as i32, center.1 as i32), (x_edge as i32, y_edge as i32)],
+            &BLACK
+        ))?;
 
         radar_points.push((x as i32, y as i32));
     }
-    radar_points.push(radar_points[0]);
 
+    radar_points.push(radar_points[0]);
     root.draw(&Polygon::new(radar_points.clone(), RED.mix(0.5).filled()))?;
 
     Ok(())
 }
 
-use csv;
-use plotters::backend::BitMapBackend;
-use plotters::drawing::IntoDrawingArea;
-use plotters::prelude::{AreaSeries, ChartBuilder, LabelAreaPosition, RED, WHITE};
-use plotters::style::Color;
-
-
-
-
-
-fn validate_csv_data_for_line_area(filename: &str) -> Result<(), Box<dyn Error>> {
-    let file = File::open(filename)?;
-    let mut rdr = Reader::from_reader(file);
-
-    for (line, result) in rdr.records().enumerate() {
-        let record = result?;
-
-        // Check if there are exactly 2 columns
-        if record.len() != 2 {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                format!("Line {}: Expected exactly 2 columns for x and y values.", line + 1),
-            )));
-        }
-
-        // Validate the x and y columns to ensure they can be parsed as i32
-        if record[0].trim().parse::<i32>().is_err() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                format!("Line {}: Invalid x value. Expected an integer.", line + 1),
-            )));
-        }
-
-        if record[1].trim().parse::<i32>().is_err() {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::InvalidInput,
-                format!("Line {}: Invalid y value. Expected an integer.", line + 1),
-            )));
-        }
-    }
-
-    Ok(())
-}
 
 fn read_data_from_csv_line_area(filename: &str) -> Result<Vec<(i32, i32)>, Box<dyn std::error::Error>> {
     let mut data = Vec::new();
@@ -677,6 +638,40 @@ fn draw_line_and_area(
         AreaSeries::new(data.iter().map(|(x, y)| (*x, *y)), 0, &RED.mix(0.2)).border_style(&RED),
     )
     .unwrap();
+
+    Ok(())
+}
+
+fn validate_csv_data_for_line_area(filename: &str) -> Result<(), Box<dyn Error>> {
+    let file = File::open(filename)?;
+    let mut rdr = Reader::from_reader(file);
+
+    for (line, result) in rdr.records().enumerate() {
+        let record = result?;
+
+        // Check if there are exactly 2 columns
+        if record.len() != 2 {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("Line {}: Expected exactly 2 columns for x and y values.", line + 1),
+            )));
+        }
+
+        // Validate the x and y columns to ensure they can be parsed as i32
+        if record[0].trim().parse::<i32>().is_err() {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("Line {}: Invalid x value. Expected an integer.", line + 1),
+            )));
+        }
+
+        if record[1].trim().parse::<i32>().is_err() {
+            return Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("Line {}: Invalid y value. Expected an integer.", line + 1),
+            )));
+        }
+    }
 
     Ok(())
 }
